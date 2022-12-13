@@ -45,7 +45,7 @@ type GraphResponse struct {
 					} `json:"node"`
 				} `json:"edges"`
 				PageInfo PageInfo `json:"page_info"`
-			} `json:"new_forum_members"`
+			} `json:"new_members"`
 		} `json:"node"`
 	} `json:"data"`
 }
@@ -101,7 +101,7 @@ func main() {
 		if err != nil {
 			log.Fatalln(err)
 		}
-
+		fmt.Printf("Start page info %v \n", pageInfo)
 		fmt.Println("Get Page info success. Start crawler...")
 
 		FetchNextpage(facebookGroupID, pageInfo)
@@ -136,8 +136,7 @@ func FetchNextpage(facebookGroupID string, pageInfo PageInfo) {
 	req, err := http.NewRequest(method, url, payload)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatalln(err)
 	}
 
 	req.Header.Add("authority", "www.facebook.com")
@@ -194,6 +193,8 @@ func FetchNextpage(facebookGroupID string, pageInfo PageInfo) {
 		GetProfileAvatarLink(user)
 	}
 
+	fmt.Printf("Next page info %v", response.Data.Node.Members.PageInfo)
+
 	if response.Data.Node.Members.PageInfo.HasNextPage {
 		FetchNextpage(facebookGroupID, response.Data.Node.Members.PageInfo)
 	}
@@ -233,6 +234,8 @@ func BuildCookies() []*http.Cookie {
 }
 
 func FetchUserAvatar(user User) {
+
+	fmt.Println(user.ProfilePhotoURL)
 
 	c := colly.NewCollector()
 	c.SetCookies("https://www.facebook.com", nativeCookies)
